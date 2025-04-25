@@ -2,7 +2,8 @@ const { Command } = require('commander');
 const program = new Command();
 const path = './tasks.json'
 const chalk = require('chalk')
-const fs = require('fs')
+const fs = require('fs');
+const { error } = require('console');
 
 
 program.version('0.0.1')
@@ -102,4 +103,35 @@ program.command('update')
     }
 })
 //delete
+program.command('delete')
+.argument('<id>', 'Delete a task')
+.action((id)=>{
+    let task;
+    if(fs.existsSync(path)){
+        fs.readFile(path, 'utf-8',(err, data)=>{
+           if(err){
+                console.log(`${chalk.red(`Can't access the folder`)}`)
+            }
+            task = JSON.parse(data)
+            const find = task.findIndex(t=> t.id== parseInt(id))
+
+            if(find != -1){
+                task.splice(find, 1)
+            }else{
+                console.log("Error")
+            }
+            const stringify = JSON.stringify(task, null, 2);
+            try{
+                fs.writeFileSync(path, stringify,)
+                console.log(`${chalk.green(`✅ Task deleted and file updated`)}`);
+            }catch(err){
+                
+                console.log(`${chalk.red(`❌ Failed to write file`)}`);
+            }
+                
+
+        })
+
+    }
+})
 program.parse(process.argv);
