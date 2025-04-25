@@ -17,8 +17,9 @@ program.command( 'add')
 .option('--duedate <date>', 'Assign a Date to tasks')
 .option('--category <filter>','Categorized by work or personal')
 .action((task, options)=>{
-    let id = Date.now()
-    let todo = {id, task, duedate: options.duedate, category: options.category}
+    let id = Math.floor(Math.random()*100)
+    let completed =false;
+    let todo = {id, task, duedate: options.duedate, category: options.category, completed }
     if(fs.existsSync(path)){
         try{
            const file= fs.readFileSync(path, 'utf-8', )
@@ -57,6 +58,7 @@ program.command('list')
                     console.log(`${chalk.green('Task:')} ${chalk.blue(`${task.task}`)}`);
                     console.log(`${chalk.green('Due Date:')} ${chalk.blue(`${task.duedate || 'Not specified'}`)}`);
                     console.log(`${chalk.green('Category:')} ${chalk.blue(`${task.category || 'Not specified'}`)}`);
+                    console.log(`${chalk.green('Completed:')}${chalk.blue(`${task.completed}`)}`)
                     console.log(`${chalk.red('-------------------------')}`);
                 });
             } catch (parseErr) {
@@ -64,9 +66,40 @@ program.command('list')
             }
         });
     });
-//completed
-
-//uncompleted
-//delete
 //update
+program.command('update')
+.description(chalk.green(`Update your Todo!!`))
+.argument(`<id>`)
+.option('--task <task> ')
+.option('--duedate <date>')
+.option('--category <category>')
+.option('--completed <completed>')
+.action((id, options)=>{
+    let tasks;
+    if(fs.existsSync(path)){
+            fs.readFile(path, 'utf-8',(err, data)=>{
+                if(err){
+                    console.log(`${chalk.red(`Can't access the folder`)}`)
+                }
+                tasks = JSON.parse(data);
+                const task = tasks.find(t=> t.id === parseInt(id))
+                    if(task){
+                        if (options.task) task.task = options.task;
+                        if (options.duedate !== undefined) task.duedate = options.duedate;
+                        if (options.category) task.category = options.category;
+                        if (options.completed !== undefined) task.completed = options.completed;
+                    }else{
+                        console.log(`${chalk.red('Invalid Id')}`)
+                    }
+                const stringify = JSON.stringify(tasks, null, 2)
+                try{
+                    fs.writeFileSync(path, stringify);
+                    console.log("Done")
+                }catch(err){
+                    console.log("Error")
+                }
+         })
+    }
+})
+//delete
 program.parse(process.argv);
