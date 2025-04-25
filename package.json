@@ -9,6 +9,7 @@
   "author": "Ankur Jha",
   "license": "ISC",
   "dependencies": {
+    "chalk": "^4.1.2",
     "commander": "^13.1.0"
   }
 }
